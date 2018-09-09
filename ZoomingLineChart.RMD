@@ -1,0 +1,84 @@
+```{r collect-data, echo = FALSE}
+suppressMessages(library('plyr'))
+suppressMessages(library('dplyr'))
+suppressMessages(library('magrittr'))
+suppressMessages(library('formattable'))
+suppressMessages(library('knitr'))
+suppressMessages(library('sparkline'))
+
+if(!file.exists('data/')) dir.create('data/')
+
+lnk <- 'https://d3c33hcgiwev3.cloudfront.net/_595a8f2c3bcd6e2c185467a9768e641c_Programming-Assignment-1-Data-New.zip?Expires=1461974400&Signature=QMD76O1PvIyB4RkBYDcdwIcZuy9GSYh~cw7iCvTPtZUIdfXr67Bd09DXYs2a3gbfhLjGYWzK3oLHwDrlty~N7Hbcie07X~Sk42G~dFlJ8UIP1a-vt2vTWUDkyZC5LqA5QlRq9VhlHrgljW9-xXkrENO8NxbK2EZd9bZ3ExzW2Po_&Key-Pair-Id=APKAJLTNE6QMUY6HBC5A'
+destfile <- 'Programming-Assignment-1-Data-New.zip'
+
+if(!file.exists(paste0('data/', destfile))) {
+  download.file(lnk, destfile = paste0('data/', destfile))
+}
+
+if(!file.exists(paste0('data/final'))) {
+  unzip(paste0('data/', destfile), exdir = 'data/')
+}
+```
+
+```{r read-files, echo = FALSE, comment = NA, cache = FALSE}
+suppressMessages(library('plyr'))
+suppressMessages(library('dplyr'))
+
+dat1 <- read.csv2('data/Programming Assignment 1 Data New/ExcelFormattedGISTEMPDataCSV.csv', sep=',') %>% tbl_df %>% mutate_each(funs(as.numeric))
+
+dat2 <- read.csv2('data/Programming Assignment 1 Data New/ExcelFormattedGISTEMPData2CSV.csv', sep=',') %>% tbl_df %>% mutate_each(funs(as.numeric))
+```
+
+```{r clear-memory, include = FALSE}
+```
+
+```{r unlink, include = FALSE}
+## Delete the data folders to save the capacity.
+unlink('data/Programming Assignment 1 Data New', recursive = TRUE)
+```
+
+```{r data-details, echo = FALSE}
+dats <- list(dat1, dat2)
+
+llply(dats, sapply, class)
+```
+
+```{r clear-memory, include = FALSE}
+```
+
+```{r rm-objs3, include = FALSE}
+rm(datafiles, dat1, dat2)
+```
+
+```{r clear-memory, include = FALSE}
+```
+
+# Data Visulaization
+
+
+## Zooming Line Chart
+
+  The zooming graph allow you to :
+  
+  - Click-and-drag to zoom into the elements inside the graph
+  - Move the cursor on the points will show you the value
+  - You can choose what element(s) to be show on the graph
+  - You can download and save the graph in different format through the top corner of right-hand site
+  - The graph will be auto zooming to fit the trend if you select/deselect a/some element(s)
+  
+```{r line-1a, echo = FALSE, results = 'asis', comment = NA, cache = FALSE}
+suppressMessages(library('tidyr'))
+suppressMessages(library('rCharts'))
+
+td.dat1 <- dats[[1]] %>% gather(Month, Value, Jan:SON) %>% mutate(Year = as.numeric(Year), Month = factor(Month), Value = as.numeric(Value))
+
+## hPlot
+L1a <- hPlot(Value ~ Year, data = td.dat1, group = 'Month', type = 'line', size = 'hp', title = 'Zoom with Line Chart 1', subtitle = 'Climate Degree Celsius from Year 1880 to 2015')
+L1a$exporting(enabled = T)
+L1a$chart(zoomType = "xy", margin = list(left=100, right=100, top=100, bottom=200))
+L1a#$show('inline', include_assets = TRUE, cdn = TRUE)
+```
+
+  *Climate Degree Celsius from Year 1880 to 2015.*
+
+  From the above graph, the *X Axis* indicates the year and *Y Axis* indicates the degree celsius.
